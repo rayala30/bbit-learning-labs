@@ -25,16 +25,45 @@ class mqConsumer(mqConsumerInterface):
         channel = connection.channel()
 
         # Create a queue
-        queue = channel.queue_declare(queue=self._queue_name)
+        queue_start = channel.queue_declare(queue=self._queue_name)
 
+        # Create the exchange 
+        exchange_start = channel.exchange_declare(exchange=self._exchange_name)
+
+        # Bind binding key
+        channel.queue_bind(
+        queue= queue_start,
+        routing_key= self._binding_key,
+        exchange=exchange_start,
+        )
+
+        # Setup callback function 
+        channel.basic_consume(self._queue_name, self.setupRMQConnection(), 
+                              auto_ack=False)
+        
         
 
-    def on_message_callback(self):
-        pass
+    def on_message_callback(self, channel, method_frame, header_frame, body):
+        # Acknowledge message
+        channel.basic_ack(method_frame.delivery_tag, False)
 
+        # Print body message
+        print(body)
 
     def startConsuming(self):
-        pass
+        print("[*] Waiting for messages. To exit press CTRL+C")
+
+        # Start consuming messages
+        channel.start_consuming()
+
+    def __del__(self):
+        print("Closing RMQ connection on destruction")
+
+        # Close channel
+        channel.close()
+        # Close connection 
+        connection.close()
+        
 
 
 
