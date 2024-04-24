@@ -1,8 +1,5 @@
-# Test File 
-# import mqConsumerInterface
-
-import os
 import pika
+import os
 
 from consumer_interface import mqConsumerInterface
 
@@ -22,23 +19,23 @@ class mqConsumer(mqConsumerInterface):
         connection = pika.BlockingConnection(parameters=con_params)
 
         # Create a channel
-        channel = connection.channel()
+        self.channel = connection.channel()
 
         # Create a queue
-        queue_start = channel.queue_declare(queue=self._queue_name)
+        queue_start = self.channel.queue_declare(queue=self._queue_name)
 
         # Create the exchange 
-        exchange_start = channel.exchange_declare(exchange=self._exchange_name)
+        exchange_start = self.channel.exchange_declare(exchange=self._exchange_name)
 
         # Bind binding key
-        channel.queue_bind(
+        self.channel.queue_bind(
         queue= queue_start,
         routing_key= self._binding_key,
         exchange=exchange_start,
         )
 
         # Setup callback function 
-        channel.basic_consume(self._queue_name, self.setupRMQConnection(), 
+        self.channel.basic_consume(self._queue_name, self.setupRMQConnection(), 
                               auto_ack=False)
         
         
@@ -54,15 +51,15 @@ class mqConsumer(mqConsumerInterface):
         print("[*] Waiting for messages. To exit press CTRL+C")
 
         # Start consuming messages
-        channel.start_consuming()
+        self.channel.start_consuming()
 
     def __del__(self):
         print("Closing RMQ connection on destruction")
 
         # Close channel
-        channel.close()
+        self.channel.close()
         # Close connection 
-        connection.close()
+        self.connection.close()
         
 
 
