@@ -6,9 +6,9 @@ services:
     hostname: rabbit
     ports:
       # AMQ Protocol Port
-      - '30424:30424'
+      - '30425:30425'
       # RMQ Management UI Port
-      - '15672:15672'
+      - '15673:15673'
     environment:
      - VHOST=rmq-docker-broker
   rmq_lab:
@@ -17,7 +17,7 @@ services:
       - rabbitmq
     ports:
       #Jupyter notebook port 
-      - '8888:8888'
+      - '8889:8889'
     volumes:
       - ./:/app
     environment:
